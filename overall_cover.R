@@ -24,7 +24,7 @@ pic_width <- pic_dim[1]
 pic_length <- pic_dim[2]
 
 
-#find pixels with the colors for each specific species
+####find pixels with the colors for each specific species####
 Acanthastrea              =  intersect(which(pic[,,1] == 255/255),  intersect(which(pic[,,2]==100/255), which(pic[,,3]==100/255)))
 Acropora                  =  intersect(which(pic[,,1] == 90/255),   intersect(which(pic[,,2]==50/255),  which(pic[,,3]==0)))
 Anomastrea                =  intersect(which(pic[,,1] == 150/255),  intersect(which(pic[,,2]==50)/255,  which(pic[,,3]==50/255)))
@@ -51,6 +51,7 @@ Unknown                   =  intersect(which(pic[,,1] == 25/255),   intersect(wh
 #put above index vectors into Cor
 Cor <- c(Acanthastrea, Acropora, Anomastrea, Coscinarea, Cyphastrea, Dipsastrea, Favites, Goniopora, Favites, Goniopora, Leptastrea_purpurea, Leptastrea_transversa, Pavona, Platygyra, Plesiastrea, Porites_harrisoni, Porites_lutea, Psammocora_albopicta, Psammocora_profundacella, Psammocora_stellata, Siderastrea_savignyana, Turbinaria_peltata, Turbinaria_reniformis, Unknown)
 
+####Label the areas with coral####
 #Create a zeros vector the size of the new image
 l_b <- matrix(0, pic_width, pic_length)
 # draw the corals
@@ -61,9 +62,24 @@ labeled <- bwlabel(Coral)
 #how many corals were counted
 num_corals <- max(labeled)
 
-#calculate the area occupied by corals
+####calculate the area occupied by corals####
 data1 <- computeFeatures.shape(labeled)
 area1 <- unname(data1[, 's.area'])
 ar1 <- sort(area1)
 
+####Calculate size classes####
+rad <- sqrt(ar1/pi)
+Sc1 <-c(length(which(rad<5)), length(which(rad>5 & rad<10)), length(which(rad>10 & rad<30)), length(which(rad>30 & rad<100)), length(which(rad>100)))
 
+#Size_cl=[Size_cl; Sc1] not sure what this does
+
+####Percent cover calculation####
+#get indices for bare area
+Bare <- intersect(which(pic[,,1] == 1),
+				intersect(which(pic[,,2] == 1),
+				          which(pic[,,3] == 1)))
+#cover calculation
+cover <- length(Cor)/(length(Bare)+length(Cor))
+
+####Stats####
+stats <- c(mean(cov), sd(cov))
