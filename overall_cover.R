@@ -1,9 +1,28 @@
 #recreating riegl's script
 #
+library(tidyverse)
 library("EBImage")
-library(dplyr)
 
-pic <- readImage("/Users/Mau/OneDrive\ -\ Qatar\ University/RESTORE\ Shared\ Folder/Work\ Plan\ Research/WP2-\ Integrated\ Monitoring/Images/Transects/Umm\ Al\ Arshan/2019.10.19/UAA\ T1\ 0419\ copy.tif")
+
+
+# currently only reads one image
+ppic <- readImage("/Users/Mau/OneDrive\ -\ Qatar\ University/RESTORE\ Shared\ Folder/Work\ Plan\ Research/WP2-\ Integrated\ Monitoring/Images/Transects/Umm\ Al\ Arshan/2019.10.19/UAA\ T1\ 0419\ copy.tif")
+
+#get dimensions of image to resize later
+ppic_dim <- dim(ppic)
+ppic_width <- ppic_dim[1]
+ppic_length <- ppic_dim[2]
+
+
+
+#resize image
+pic <- resize(ppic, 500,)
+
+#new dimensions
+pic_dim <- dim(ppic)
+pic_width <- ppic_dim[1]
+pic_length <- ppic_dim[2]
+
 
 #find pixels with the colors for each specific species
 Acanthastrea              =  intersect(which(pic[,,1] == 255/255),  intersect(which(pic[,,2]==100/255), which(pic[,,3]==100/255)))
@@ -29,3 +48,7 @@ Turbinaria_peltata        =  intersect(which(pic[,,1] == 0),        intersect(wh
 Turbinaria_reniformis     =  intersect(which(pic[,,1] == 0),        intersect(which(pic[,,2]==0),       which(pic[,,3]==255/255)))
 Unknown                   =  intersect(which(pic[,,1] == 25/255),   intersect(which(pic[,,2]==0),       which(pic[,,3]==175/255)))
 
+#put above index vectors into Cor
+Cor <- c(Acanthastrea, Acropora, Anomastrea, Coscinarea, Cyphastrea, Dipsastrea, Favites, Goniopora, Favites, Goniopora, Leptastrea_purpurea, Leptastrea_transversa, Pavona, Platygyra, Plesiastrea, Porites_harrisoni, Porites_lutea, Psammocora_albopicta, Psammocora_profundacella, Psammocora_stellata, Siderastrea_savignyana, Turbinaria_peltata, Turbinaria_reniformis, Unknown)
+
+#Create a zeros vector the size of the new image
