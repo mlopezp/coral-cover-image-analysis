@@ -2,11 +2,40 @@
 #
 library(tidyverse)
 library("EBImage")
+library(here)
 
 
-
-# currently only reads one image
+# Read a single image for testing####
 pic <- readImage("/Users/Mau/OneDrive\ -\ Qatar\ University/RESTORE\ Shared\ Folder/Work\ Plan\ Research/WP2-\ Integrated\ Monitoring/Images/Transects/Umm\ Al\ Arshan/2019.10.19/UAA\ T1\ 0419\ copy.tif")
+
+#set working directory
+here()
+
+
+# Get the file names of files in a directory####
+file.names <- list.files(path = "./", pattern = "*.tif")
+file.names <- set_names(file.names)
+
+# Read in the images in to a list. This is probably too memory intensive
+image_list <- map(list.files(path = "./", pattern = "*.tif"), readImage)
+
+percent_cover <- vector("double", length(image_list))
+binary_images <- vector("list", length(image_list))
+colony_count <- vector("double", length(image_list))
+for (i in seq_along(image_list)) {
+	pic <- image_list[[i]]
+
+
+
+
+# coral_cover("/Users/Mau/OneDrive\ -\ Qatar\ University/RESTORE\ Shared\ Folder/Work\ Plan\ Research/WP2-\ Integrated\ Monitoring/Images/Transects/Umm\ Al\ Arshan/2019.10.19/UAA\ T1\ 0419\ copy.tif")
+#
+# coral_cover <- function(file){
+# 	pic <- readImage(file)
+
+
+
+
 
 #get dimensions of image to resize later
 #ppic_dim <- dim(ppic)
@@ -59,8 +88,11 @@ Coral <- replace(l_b, Cor, 255)
 
 #Label each coral
 labeled <- bwlabel(Coral)
+binary_images[[i]] <- labeled
+
 #how many corals were counted
 num_corals <- max(labeled)
+colony_count[[i]] <- num_corals
 
 ####calculate the area occupied by corals####
 data1 <- computeFeatures.shape(labeled)
@@ -79,7 +111,9 @@ Bare <- intersect(which(pic[,,1] == 1),
 				intersect(which(pic[,,2] == 1),
 				          which(pic[,,3] == 1)))
 #cover calculation
-cover <- length(Cor)/(length(Bare)+length(Cor))
+cov <- length(Cor)/(length(Bare)+length(Cor))
+percent_cover[[i]] <- cov
+}
 
 ####Stats####
-stats <- c(mean(cov), sd(cov))
+stats <- c(mean(output), sd(output))
