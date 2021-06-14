@@ -6,7 +6,7 @@ library(here)
 
 
 # Read a single image for testing####
-pic <- readImage("/Users/Mau/OneDrive\ -\ Qatar\ University/RESTORE\ Shared\ Folder/Work\ Plan\ Research/WP2-\ Integrated\ Monitoring/Images/Transects/Umm\ Al\ Arshan/2019.10.19/UAA\ T1\ 0419\ copy.tif")
+ppic <- readImage("/Users/Mau/OneDrive\ -\ Qatar\ University/RESTORE\ Shared\ Folder/Work\ Plan\ Research/WP2-\ Integrated\ Monitoring/Images/Transects/Umm\ Al\ Arshan/2019.10.19/UAA\ T1\ 0419\ copy.tif")
 
 #set working directory
 here()
@@ -17,40 +17,31 @@ file.names <- list.files(path = "./", pattern = "*.tif")
 file.names <- set_names(file.names)
 
 # Read in the images in to a list. This is probably too memory intensive
-image_list <- map(list.files(path = "./", pattern = "*.tif"), readImage)
+image_list <- map(file.names, readImage)
 
 percent_cover <- vector("double", length(image_list))
 binary_images <- vector("list", length(image_list))
 colony_count <- vector("double", length(image_list))
+resized <- vector("list", length(image_list))
 for (i in seq_along(image_list)) {
-	pic <- image_list[[i]]
-
-
-
-
-# coral_cover("/Users/Mau/OneDrive\ -\ Qatar\ University/RESTORE\ Shared\ Folder/Work\ Plan\ Research/WP2-\ Integrated\ Monitoring/Images/Transects/Umm\ Al\ Arshan/2019.10.19/UAA\ T1\ 0419\ copy.tif")
-#
-# coral_cover <- function(file){
-# 	pic <- readImage(file)
-
-
+	ppic <- image_list[[i]]
 
 
 
 #get dimensions of image to resize later
-#ppic_dim <- dim(ppic)
-#ppic_width <- ppic_dim[1]
-#ppic_length <- ppic_dim[2]
-
+ppic_dim <- dim(ppic)
+ppic_width <- ppic_dim[2]
+ppic_length <- ppic_dim[1]
 
 
 #resize image
-#pic <- resize(ppic, 500)
+pic <- resize(ppic, 500, ((500*ppic_width)/ppic_length))
+resized[[i]] <- pic
 
 #new dimensions
-pic_dim <- dim(pic)
-pic_width <- pic_dim[1]
-pic_length <- pic_dim[2]
+ pic_dim <- dim(pic)
+ pic_width <- pic_dim[2]
+ pic_length <- pic_dim[1]
 
 
 ####find pixels with the colors for each specific species####
@@ -72,9 +63,9 @@ Porites_lutea             =  intersect(which(pic[,,1] == 200/255),  intersect(wh
 Psammocora_albopicta      =  intersect(which(pic[,,1] == 0),        intersect(which(pic[,,2]==200/255), which(pic[,,3]==255/255)))
 Psammocora_profundacella  =  intersect(which(pic[,,1] == 250/255),  intersect(which(pic[,,2]==150/255), which(pic[,,3]==100/255)))
 Psammocora_stellata       =  intersect(which(pic[,,1] == 50/255),   intersect(which(pic[,,2]==150/255), which(pic[,,3]==0)))
-Siderastrea_savignyana    =  intersect(which(pic[,,1] == 50/255),   intersect(which(pic[,,2]==150/255), which(pic[,,3]==0)))
+Siderastrea_savignyana    =  intersect(which(pic[,,1] == 250/255),  intersect(which(pic[,,2]==150/255), which(pic[,,3]==250/255)))
 Turbinaria_peltata        =  intersect(which(pic[,,1] == 0),        intersect(which(pic[,,2]==50/255),  which(pic[,,3]==0)))
-Turbinaria_reniformis     =  intersect(which(pic[,,1] == 0),        intersect(which(pic[,,2]==0),       which(pic[,,3]==255/255)))
+Turbinaria_reniformis     =  intersect(which(pic[,,1] == 130/255),  intersect(which(pic[,,2]==230/255), which(pic[,,3]==130/255)))
 Unknown                   =  intersect(which(pic[,,1] == 25/255),   intersect(which(pic[,,2]==0),       which(pic[,,3]==175/255)))
 
 #put above index vectors into Cor
@@ -115,5 +106,12 @@ cov <- length(Cor)/(length(Bare)+length(Cor))
 percent_cover[[i]] <- cov
 }
 
-####Stats####
-stats <- c(mean(output), sd(output))
+####Results Table####
+results <- tibble(transect = file.names,
+	                `# corals` = colony_count,
+									`percent cover` = percent_cover)
+
+
+stats <- map_dbl(select(results, -transect), (mean))
+
+## get kable out of this with the results
