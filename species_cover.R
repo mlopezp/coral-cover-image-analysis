@@ -22,12 +22,12 @@ file.names <- list.files(path = "./", pattern = "*.tif")
 #### Output vectors of results to evaluate results ####
 colony_data <- vector("list", length(file.names)) # all colony counts and areas if wanted
 size_class_plots <- vector("list", length(file.names)) #size class plots
-results <- vector("list", length(file.names)) # percent cover, colony count and area by species
+results_by_transect <- vector("list", length(file.names)) # percent cover, colony count and area by species
 
 ## Debugging vectors to check outputs of certain steps #####
 # resized <- vector("list", length(file.names)) # the resized images
 # bw_images <- vector("list", length(file.names)) # the generated bw images
-# label_matrices <- vector("list", length(file.names)) # label matrices
+label_matrices <- vector("list", length(file.names)) # label matrices
 
 
 ## Start for loop ####
@@ -129,8 +129,8 @@ species_label_matrix <- species_binary_images %>%
 	                      map(bwlabel) # apply bwlabel to each of the species binary images, output them into a list
 
 #### output to labeled_images for debugging ####
-# label_matrices[[i]] <- species_label_matrix
-# names(label_matrices) <- file.names
+label_matrices[[i]] <- species_label_matrix
+names(label_matrices) <- file.names
 
 ## Calculate blob geometries ####
 colony_area <- species_label_matrix %>%
@@ -142,16 +142,16 @@ colony_area <- species_label_matrix %>%
 		            s.area = sqrt(s.area/pi), # convert the areas into circle equivalents
 		           `Size Class`= cut(s.area, breaks=c(0, 5, 10, 30, 100, 10000), right = FALSE, ordered_result = TRUE, include.lowest = TRUE)) %>% # assign size classes to each of the blobs
 	              mutate(`Size Class` = fct_recode(`Size Class`,
-	              																 "<5" = "[0,5)",
-	              																 "5 ≤ 10" = "[5,10)",
-	              																 "10 ≤ 30" = "[10,30)",
+	              																 "<5"       = "[0,5)",
+	              																 "5 ≤ 10"   = "[5,10)",
+	              																 "10 ≤ 30"  = "[10,30)",
 	              																 "30 ≤ 100" = "[30,100)",
-	              																 ">100" = "[100,1e+04]")) # rename factors to more legible forms
+	              																 ">100"     = "[100,1e+04]")) # rename factors to more legible forms
 
 ### summarize by species ####
 species_area <- colony_area %>%
-	               group_by(Species) %>%
-                 summarize_if(is.numeric, funs(`Number of Colonies` = n(),`Avg. Area` = mean))
+	              group_by(Species) %>%
+                summarize_if(is.numeric, funs(`Number of Colonies` = n(),`Avg. Area` = mean))
 
 #### need to figure out the resizing so we can standardize the areas!!!
 
@@ -203,11 +203,30 @@ totals <- joined_output %>%
 
 
 
-results[[i]] <- joined_output
-names(results) <- file.names
+results_by_transect[[i]] <- joined_output
+names(results_by_transect) <- file.names
+
 }
 
 # Results####
+
+transect_levels = c("BZ T1", "BZ T2", "BZ T3", "UAA T1", "UAA T2", "UAA T3", "FEH T1", "FEH T2", "FEH T3", "MM T1", "MM T2", "MM T3", "SH T1", "SH T2", "SH T3")
+
+results_long <- results_by_transect %>%
+  map_df(~as.data.frame(.x), .id = "Site") %>% # takes results list and puts into a single data frame adding an id column for the site
+  as_tibble() %>%
+  separate(Site, c("Site", "Transect", "Period")) %>%
+  mutate(Period2 = as.numeric(Period),
+         Site = str_c(Site, " ", Transect)) %>%
+  separate(Period2, c("Quarter", "Year"), 1) %>%
+  mutate(Site = factor(Site, levels = transect_levels),
+         Period = factor(Period, levels = unique(Period)),
+         Quarter = factor(Quarter, levels = c("1", "2", "3", "4")),
+         Year = factor(paste0("20",Year), levels = c("2019", "2020", "2021", "2022"))) %>%
+  select(Site:Period, Quarter, Year, everything(), -Transect)
+
+
+
 ## Colony counts ####
 # col_ct <- colony_count %>%
 # 	map_df(~as.data.frame(.x), .id = "Transect") %>%
