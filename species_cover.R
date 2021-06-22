@@ -12,10 +12,10 @@ rm(list = ls())
 here()
 
 # Get the file names of files in a directory ####
-file.names <- list.files(path = "./", pattern = "*.tif")
+#file.names <- list.files(path = "./", pattern = "*.tif")
 
 # Single image read for testing
-# file.names <- c("UAA T1 0419 blobs.tif")
+file.names <- c("FEH T1 0419.tif")
 
 # Loop over each of the images, create bw images, label them, count the number of features and calculate cover ####
 
@@ -100,7 +100,7 @@ species_levels <- names(species_indices)
 # Coral_gen <- c(Acanthastrea, Acropora, Anomastrea, Coscinarea, Cyphastrea, Dipsastrea, Favites, Goniopora, Leptastrea = c(Leptastrea_purpurea, Leptastrea_transversa), Pavona, Platygyra, Plesiastrea, Porites = c(Porites_harrisoni, Porites_lutea), Psammocora = c(Psammocora_albopicta, Psammocora_profundacella, Psammocora_stellata), Siderastrea_savignyana, Turbinaria = c(Turbinaria_peltata, Turbinaria_reniformis), Unknown)
 
 
-# Generate and analyze images in BW ####
+# Generate and analyze BW images ####
 
 ## Create a black image the size of the original transect
 black_bg <- matrix(0, pic_dim[1], pic_dim[2])
@@ -159,15 +159,6 @@ species_area <- colony_area %>%
 colony_data[[i]] <- colony_area
 names(colony_data) <- file.names
 
-# overall summary by size class
-	# Sc1 <-tibble("<5"        = length(which(colony_area$s.area<5)),
-	# 				     "5 - <10"   = length(which(colony_area$s.area>5 & colony_area$s.area<10)),
-	# 				     "10 - <30"  = length(which(colony_area$s.area>10 & colony_area$s.area<30)),
-	# 				     "30 - <100" = length(which(colony_area$s.area>30 & colony_area$s.area<100)),
-	# 				     ">100"      = length(which(colony_area$s.area>100))) %>%
-	# 	    pivot_longer(everything(), names_to = "Size Class", values_to = "Colonies") %>%
-	# 			mutate(`Size Class` = as_factor(`Size Class`))
-
 # plot the number of colonies per size class per species ####
 p <- ggplot(colony_area) +
      geom_bar(aes(`Size Class`, fill = `Species`)) +
@@ -182,7 +173,7 @@ size_class_plots[[i]] <- p
 names(size_class_plots) <- file.names
 
 # Percent cover calculation ####
-## Get indices for bare area ####
+## Get indices for bare area ##
 Bare <- intersect(which(pic[,,1] == 1),
 									intersect(which(pic[,,2] == 1),
 														which(pic[,,3] == 1)))
