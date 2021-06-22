@@ -12,10 +12,10 @@ rm(list = ls())
 here()
 
 # Get the file names of files in a directory ####
-file.names <- list.files(path = "./", pattern = "*.tif")
+#file.names <- list.files(path = "./", pattern = "*.tif")
 
 # Single image read for testing
-# file.names <- c("UAA T1 0419 blobs.tif")
+file.names <- c("FEH T1 0419_2.tif")
 
 # Loop over each of the images, create bw images, label them, count the number of features and calculate cover ####
 
@@ -120,9 +120,6 @@ for (j in seq_along(species_indices)) {
 ## Check the results by checking that the number of Dipsastreas (most common coral).
 image_check <- identical(as.numeric(length(species_indices$Dipsastrea)), sum(species_binary_images$Dipsastrea))
 
-# delete black layer
-rm(black_bg)
-
 #### Label colonies in each of the species layers ####
 ### Image segmentation and labeling
 species_label_matrix <- species_binary_images %>%
@@ -183,9 +180,14 @@ names(size_class_plots) <- file.names
 
 # Percent cover calculation ####
 ## Get indices for bare area ####
-Bare <- intersect(which(pic[,,1] == 1),
-									intersect(which(pic[,,2] == 1),
-														which(pic[,,3] == 1)))
+Bare_indices <- intersect(which(pic[,,1] == 250/255),
+									intersect(which(pic[,,2] == 50/255),
+														which(pic[,,3] == 250/255)))
+
+Bare <- replace(black_bg, Bare_indices, 1)
+
+# delete black layer
+rm(black_bg)
 
 ## cover calculation
 species_cover <- species_indices %>%
