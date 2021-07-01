@@ -15,7 +15,15 @@ here()
 # file.names <- list.files(path = "./", pattern = "*.tif")
 
 # Single image read for testing
+<<<<<<< HEAD
 file.names <- c("FEH T1 0419_2.tif")
+=======
+<<<<<<< HEAD
+file.names <- c("FEH T1 0419_2.tif")
+=======
+file.names <- c("FEH T1 0419.tif")
+>>>>>>> b21888d3b727d070592e2e3efa88b4688cdb61d4
+>>>>>>> ca763670af70f9ff255bd6b36f5124794561d916
 
 # Loop over each of the images, create bw images, label them, count the number of features and calculate cover ####
 
@@ -115,9 +123,12 @@ for (j in seq_along(species_indices)) {
 image_check <- identical(as.numeric(length(species_indices$Dipsastrea)), sum(species_binary_images$Dipsastrea))
 image_check
 
+<<<<<<< HEAD
 # delete black layer
 # rm(black_bg)
 
+=======
+>>>>>>> ca763670af70f9ff255bd6b36f5124794561d916
 #### Label colonies in each of the species layers ####
 ### Image segmentation and labeling
 species_label_matrix <- species_binary_images %>%
@@ -170,6 +181,25 @@ size_class_plots[[i]] <- p
 names(size_class_plots) <- file.names
 
 # Percent cover calculation ####
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+## Get indices for bare area ####
+Bare_indices <- intersect(which(pic[,,1] == 250/255),
+									intersect(which(pic[,,2] == 50/255),
+														which(pic[,,3] == 250/255)))
+
+Bare <- replace(black_bg, Bare_indices, 1)
+
+# delete black layer
+rm(black_bg)
+=======
+## Get indices for bare area ##
+Bare <- intersect(which(pic[,,1] == 1),
+									intersect(which(pic[,,2] == 1),
+														which(pic[,,3] == 1)))
+>>>>>>> b21888d3b727d070592e2e3efa88b4688cdb61d4
+>>>>>>> ca763670af70f9ff255bd6b36f5124794561d916
 
 ## get indices for transect area
 Bare =  c(intersect(which(pic[,,1] == 250/255),  intersect(which(pic[,,2] == 50/255),  which(pic[,,3] == 250/255))), species_indices$Coral) # does not include areas with coral
