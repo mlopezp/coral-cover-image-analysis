@@ -160,35 +160,32 @@ names(colony_data) <- file.names
 # plot the number of colonies per size class per species ####
 p <- ggplot(colony_area) +
      geom_bar(aes(`Size Class`, fill = `Species`)) +
-	   labs(x = "Size Class") +
-		 theme_bw() +
-	   theme(legend.position = "none") +
-	   facet_wrap(~Species) +
-	   labs(title = file.names[[i]])
+	 labs(x = "Size Class") +
+	 theme_bw() +
+	 theme(legend.position = "none") +
+	 facet_wrap(~Species) +
+	 labs(title = file.names[[i]])
 
 #### save plots ####
 size_class_plots[[i]] <- p
 names(size_class_plots) <- file.names
 
 # Percent cover calculation ####
-## get indices for transect area
-Bare =  c(intersect(which(pic[,,1] == 250/255),  intersect(which(pic[,,2] == 50/255),  which(pic[,,3] == 250/255))), species_indices$Coral) # does not include areas with coral
+## get indices for transect area and areas with corals
+Bare =  c(intersect(which(pic[,,1] == 250/255),  intersect(which(pic[,,2] == 50/255),  which(pic[,,3] == 250/255))), species_indices$Coral)
 
 ## make a binary image of transect area
 Transect_indices <- black_bg %>%
-	                  replace(Bare, 1) %>%
-	                  medianFilter(10) #something is not quite right as the outlines of the corals remain. Adding the filtering helps but changed the outline of the transect as well
-
-## get label matrix for transect area just to check that that the image is correct
-Transect_img <- bwlabel(Transect_indices)
+	                replace(Bare, 1) %>%
+	                medianFilter(10) #something is not quite right as the outlines of the corals remain. Adding the filtering helps but changed the outline of the transect as well
 
 ## Make table with cover values per species
 species_cover <- species_indices %>%
-	map_dbl(length) %>% # get the length of each of the index vectors
-	as_tibble(rownames = "Species") %>%
-	mutate(`% Cover` = value/length(Transect_indices)*100) %>% # calculate percent cover of colored pixels over white pixels
-	# filter(`% Cover` == 0 | `% Cover` > 0.01) %>%  # filter out likely spurious results, will likely use this in the final table but not yet, so we can match up all species with the colony areas. although you could use a join...
-	select(-value)
+	             map_dbl(length) %>% # get the length of each of the index vectors
+	             as_tibble(rownames = "Species") %>%
+	             mutate(`% Cover` = value/length(Transect_indices)*100) %>% # calculate percent cover of colored pixels over the pink background pixels
+	           # filter(`% Cover` == 0 | `% Cover` > 0.01) %>%  # filter out likely spurious results, will likely use this in the final table but not yet, so we can match up all species with the colony areas. although you could use a join...
+	             select(-value)
 
 # join colony count and area table with cover values
 joined_output <- species_area %>%
