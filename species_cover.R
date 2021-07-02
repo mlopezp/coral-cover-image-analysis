@@ -177,7 +177,7 @@ Bare =  c(intersect(which(pic[,,1] == 250/255),  intersect(which(pic[,,2] == 50/
 ## make a binary image of transect area
 Transect_indices <- black_bg %>%
 	                  replace(Bare, 1) %>%
-	                  medianFilter(10) #soemthing is not quite right as the outlines of the corals remain  filtering helps but changed the outline of the transect as well
+	                  medianFilter(10) #something is not quite right as the outlines of the corals remain. Adding the filtering helps but changed the outline of the transect as well
 
 ## get label matrix for transect area just to check that that the image is correct
 Transect_img <- bwlabel(Transect_indices)
