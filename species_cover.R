@@ -137,8 +137,9 @@ colony_area <- species_label_matrix %>%
  	             as_tibble() %>% # convert df into tibble for easier data manipulation
 		           filter(s.area > 5) %>% # filter out small blobs
 		           transmute(Species = factor(Species, levels = species_levels),
-		            s.area = sqrt(s.area/pi), # convert the areas into circle equivalents
-		           `Size Class`= cut(s.area, breaks=c(0, 5, 10, 30, 100, 10000), right = FALSE, ordered_result = TRUE, include.lowest = TRUE)) %>% # assign size classes to each of the blobs
+		            area = sqrt(s.area/pi), # convert the areas into circle equivalents
+		            max.diam = s.radius.max,
+		           `Size Class`= cut(area, breaks=c(0, 5, 10, 30, 100, 10000), right = FALSE, ordered_result = TRUE, include.lowest = TRUE)) %>% # assign size classes to each of the blobs
 	              mutate(`Size Class` = fct_recode(`Size Class`,
 	              																 "<5"       = "[0,5)",
 	              																 "5 ≤ 10"   = "[5,10)",
